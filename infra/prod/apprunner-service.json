@@ -1,0 +1,56 @@
+{
+  "ServiceName": "pdp-prod-backend",
+  "SourceConfiguration": {
+    "AutoDeploymentsEnabled": false,
+    "AuthenticationConfiguration": {
+      "AccessRoleArn": "arn:aws:iam::342882684671:role/pdp-prod-apprunner-ecr-access"
+    },
+    "ImageRepository": {
+      "ImageRepositoryType": "ECR",
+      "ImageIdentifier": "342882684671.dkr.ecr.ap-southeast-2.amazonaws.com/pdp:prod",
+      "ImageConfiguration": {
+        "Port": "8000",
+        "RuntimeEnvironmentVariables": {
+          "PDP_ENVIRONMENT": "production",
+          "PDP_LOG_LEVEL": "INFO",
+          "PDP_API_PREFIX": "/api",
+          "PDP_APP_NAME": "Power Data Platform API",
+          "PDP_ALLOWED_ORIGINS": "[\"https://app.powerdataplatform.com.au\", \"https://prod-fe-deployment.d211z5zlnjzk1b.amplifyapp.com\"]",
+          "PDP_FRONTEND_BASE_URL": "https://app.powerdataplatform.com.au",
+          "PDP_JWT_HOURS": "8",
+          "PDP_BOOTSTRAP_SUPERADMIN_EMAIL": "admin@solutionadvisor.com.au"
+        },
+        "RuntimeEnvironmentSecrets": {
+          "PDP_DATABASE_URL": "arn:aws:secretsmanager:ap-southeast-2:342882684671:secret:pdp-prod/database-url-tjd39Y",
+          "PDP_JWT_SECRET": "arn:aws:secretsmanager:ap-southeast-2:342882684671:secret:pdp-prod/jwt-secret-pfUcTY",
+          "PDP_BOOTSTRAP_SUPERADMIN_PASSWORD": "arn:aws:secretsmanager:ap-southeast-2:342882684671:secret:pdp-prod/bootstrap-superadmin-password-VWOe4N"
+        }
+      }
+    }
+  },
+  "InstanceConfiguration": {
+    "Cpu": "2048",
+    "Memory": "4096",
+    "InstanceRoleArn": "arn:aws:iam::342882684671:role/pdp-prod-apprunner-instance"
+  },
+  "HealthCheckConfiguration": {
+    "Protocol": "HTTP",
+    "Path": "/api/platform/health",
+    "Interval": 10,
+    "Timeout": 5,
+    "HealthyThreshold": 1,
+    "UnhealthyThreshold": 5
+  },
+  "NetworkConfiguration": {
+    "EgressConfiguration": {
+      "EgressType": "VPC",
+      "VpcConnectorArn": "arn:aws:apprunner:ap-southeast-2:342882684671:vpcconnector/pdp-prod/1/d822609de1e449949dc544945121dcc5"
+    }
+  },
+  "AutoScalingConfigurationArn": "arn:aws:apprunner:ap-southeast-2:342882684671:autoscalingconfiguration/pdp-prod/1/c5252af8b2944baab130aacfc9c3a9f4",
+  "Tags": [
+    { "Key": "Project", "Value": "pdp" },
+    { "Key": "Environment", "Value": "prod" },
+    { "Key": "ManagedBy", "Value": "manual" }
+  ]
+}

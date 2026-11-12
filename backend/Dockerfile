@@ -1,0 +1,60 @@
+# Build stage
+FROM python:3.11-slim as builder
+
+WORKDIR /build
+
+# Install build dependencies
+RUN pip install --no-cache-dir build
+
+# Copy project files
+COPY pyproject.toml ./
+COPY app ./app
+COPY features ./features
+COPY shared ./shared
+
+# Build wheel
+RUN python -m build --wheel
+
+# Runtime stage
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install the wheel
+COPY --from=builder /build/dist/*.whl /tmp/
+RUN pip install --no-cache-dir /tmp/*.whl && rm /tmp/*.whl
+
+# Copy application code
+COPY app ./app
+COPY features ./features
+COPY shared ./shared
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+# Build information shown in Admin > Application Information (passed by the pipeline)
+ARG PDP_BUILD_ID=""
+ARG PDP_BUILD_COMMIT=""
+ARG PDP_BUILD_TIME=""
+ENV PDP_BUILD_ID=${PDP_BUILD_ID} \
+    PDP_BUILD_COMMIT=${PDP_BUILD_COMMIT} \
+    PDP_BUILD_TIME=${PDP_BUILD_TIME}
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/api/platform/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Run the application
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

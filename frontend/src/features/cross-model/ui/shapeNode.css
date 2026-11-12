@@ -1,0 +1,58 @@
+/*
+ * Resize affordances for drawn annotations (see ShapeNode.tsx).
+ *
+ * ReactFlow's own handles are 5px — far too small to aim at. These rules keep the
+ * handle *looking* small while giving it a much larger grab area, and drop the
+ * edge resize lines so only corners resize. `!important` is
+ * deliberate: every declaration here overrides @xyflow/react's stylesheet, whose
+ * selectors are as specific as these and whose import order is not guaranteed.
+ */
+
+/* The handles must sit above the shape's own outline hit-stroke, or that stroke
+   captures the pointer and the corners never become resize targets. */
+.react-flow__resize-control.pdp-shape-resize-handle {
+  z-index: 10 !important;
+  pointer-events: all !important;
+}
+
+.react-flow__resize-control.pdp-shape-resize-handle {
+  width: 20px !important;
+  height: 20px !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* The visible dot: 8×8, centred in the 20×20 grab area. */
+.react-flow__resize-control.pdp-shape-resize-handle::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  background: #fff;
+  border: 1.5px solid #1976d2;
+  border-radius: 2px;
+}
+
+/* Only the corners resize. The edges belong to the shape's own outline, which
+   selects and drags it — an edge that resized instead would make a frame
+   impossible to move by its longest, easiest-to-hit part. */
+.react-flow__resize-control.pdp-shape-resize-line {
+  display: none !important;
+}
+
+/*
+ * Placement mode: the pane, the nodes and the shape outlines each set their own
+ * cursor (grab, grabbing, pointer), so arming an annotation tool has to override
+ * all of them — otherwise the pointer keeps promising a pan or a selection while
+ * the next click actually drops a shape.
+ */
+.pdp-shape-placing,
+.pdp-shape-placing .react-flow__pane,
+.pdp-shape-placing .react-flow__pane.dragging,
+.pdp-shape-placing .react-flow__renderer,
+.pdp-shape-placing .react-flow__node,
+.pdp-shape-placing .react-flow__edge,
+.pdp-shape-placing .react-flow__edge-textwrapper,
+.pdp-shape-placing svg * {
+  cursor: crosshair !important;
+}

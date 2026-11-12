@@ -1,0 +1,54 @@
+# Deployments run only when started by hand (see DEPLOYMENT.md):
+#
+#   Pipelines → Run pipeline → Branch: <any branch> → Pipeline: deploy-to-dev | deploy-to-prod
+#
+# Merging to master deploys nothing. Each commit's backend image is built once and reused,
+# so deploying a commit to prod runs the same image dev ran. Both environments run the same
+# deploy script; their differences are Bitbucket deployment variables. Logic is in cicd/*.sh.
+
+image: node:22
+
+definitions:
+  services:
+    docker:
+      memory: 2048
+
+  steps:
+    - step: &build
+        name: Build backend image
+        services:
+          - docker
+        script:
+          - cicd/install-aws-cli.sh
+          - cicd/build-backend.sh
+
+    - step: &deploy
+        name: Deploy
+        script:
+          - cicd/deploy.sh
+
+pipelines:
+  custom:
+    deploy-to-dev:
+      - step: *build
+      - step:
+          <<: *deploy
+          name: Deploy to dev
+          deployment: test
+
+    deploy-to-prod:
+      - step: *build
+      - step:
+          <<: *deploy
+          name: Deploy to production
+          deployment: production
+
+  pull-requests:
+    '**':
+      - step:
+          name: Run Tests
+          image: python:3.11
+          script:
+            - cd backend
+            - pip install -e .[dev]
+            - pytest

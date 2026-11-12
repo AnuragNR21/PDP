@@ -1,0 +1,52 @@
+{
+  "ServiceName": "PDP-Greenfield-Backend",
+  "SourceConfiguration": {
+    "AutoDeploymentsEnabled": false,
+    "AuthenticationConfiguration": {
+      "AccessRoleArn": "arn:aws:iam::342882684671:role/service-role/AppRunnerECRAccessRole"
+    },
+    "ImageRepository": {
+      "ImageRepositoryType": "ECR",
+      "ImageIdentifier": "342882684671.dkr.ecr.ap-southeast-2.amazonaws.com/pdp:latest",
+      "ImageConfiguration": {
+        "Port": "8000",
+        "RuntimeEnvironmentVariables": {
+          "PDP_ALLOWED_ORIGINS": "[\"https://dev.powerdataplatform.com.au\", \"https://dev-fe-deployment.d211z5zlnjzk1b.amplifyapp.com\", \"https://master.d211z5zlnjzk1b.amplifyapp.com\"]",
+          "PDP_FRONTEND_BASE_URL": "https://dev.powerdataplatform.com.au",
+          "PDP_JWT_HOURS": "36"
+        },
+        "RuntimeEnvironmentSecrets": {
+          "PDP_DATABASE_URL": "arn:aws:secretsmanager:ap-southeast-2:342882684671:secret:pdp-dev/database-url-jPvTxW",
+          "PDP_JWT_SECRET": "arn:aws:secretsmanager:ap-southeast-2:342882684671:secret:pdp-dev/jwt-secret-Di8dp8",
+          "PDP_BOOTSTRAP_SUPERADMIN_PASSWORD": "arn:aws:secretsmanager:ap-southeast-2:342882684671:secret:pdp-dev/bootstrap-superadmin-password-A3i9J3"
+        }
+      }
+    }
+  },
+  "InstanceConfiguration": {
+    "Cpu": "2048",
+    "Memory": "4096",
+    "InstanceRoleArn": "arn:aws:iam::342882684671:role/pdp-dev-apprunner-instance"
+  },
+  "HealthCheckConfiguration": {
+    "Protocol": "HTTP",
+    "Path": "/api/platform/health",
+    "Interval": 10,
+    "Timeout": 5,
+    "HealthyThreshold": 1,
+    "UnhealthyThreshold": 5
+  },
+  "NetworkConfiguration": {
+    "EgressConfiguration": {
+      "EgressType": "DEFAULT"
+    },
+    "IngressConfiguration": {
+      "IsPubliclyAccessible": true
+    }
+  },
+  "AutoScalingConfigurationArn": "arn:aws:apprunner:ap-southeast-2:342882684671:autoscalingconfiguration/DefaultConfiguration/1/00000000000000000000000000000001",
+  "ObservabilityConfiguration": {
+    "ObservabilityEnabled": true,
+    "ObservabilityConfigurationArn": "arn:aws:apprunner:ap-southeast-2:342882684671:observabilityconfiguration/DefaultConfiguration/1/00000000000000000000000000000001"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "WatchProdFrontendBuilds",
+      "Effect": "Allow",
+      "Action": ["amplify:ListJobs", "amplify:GetJob", "amplify:StartJob"],
+      "Resource": [
+        "arn:aws:amplify:ap-southeast-2:342882684671:apps/d211z5zlnjzk1b/branches/prod-fe-deployment",
+        "arn:aws:amplify:ap-southeast-2:342882684671:apps/d211z5zlnjzk1b/branches/prod-fe-deployment/*"
+      ]
+    }
+  ]
+}

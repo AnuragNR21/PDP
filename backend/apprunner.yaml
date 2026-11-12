@@ -1,0 +1,32 @@
+version: 1.0
+runtime: python311
+build:
+  commands:
+    build:
+      - echo "Using pre-built Docker image from ECR"
+run:
+  runtime-version: 3.11
+  command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+  network:
+    port: 8000
+    env: APP_PORT
+  env:
+    - name: PDP_ENVIRONMENT
+      value: "production"
+    - name: PDP_LOG_LEVEL
+      value: "INFO"
+    - name: PDP_API_PREFIX
+      value: "/api"
+    - name: PDP_APP_NAME
+      value: "Power Data Platform API"
+    - name: PDP_DATABASE_URL
+      value: ""  # Set at deploy time: postgresql://user:pass@rds-host:5432/pdp
+    # ── Authentication (PDP-251) ──
+    - name: PDP_JWT_SECRET
+      value: ""  # Set at deploy time: a long random string, unique to this tenant
+    - name: PDP_JWT_HOURS
+      value: "8"
+    - name: PDP_BOOTSTRAP_SUPERADMIN_PASSWORD
+      value: ""  # Optional: overrides the default first-login password of admin@solutionadvisor.com.au
+    - name: PDP_FRONTEND_BASE_URL
+      value: ""  # Set at deploy time: the Amplify URL, used in invitation and reset links
